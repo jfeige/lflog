@@ -49,14 +49,13 @@ func (l LogRecord) writeLog() {
 		case message := <-l.MessageQueue:
 			//写日志文件
 			l.checkLogDate(l.Logfile.Filename)
-			fmt.Fprint(l.f,message + "\r\n")
+			fmt.Fprintln(l.f,message)
 		}
 	}
 }
 
 //写日志时，判断是否已跨日，如果已跨日，则备份日志
 func (l LogRecord) checkLogDate(filename string){
-	fmt.Println(l.Opendate)
 	if time.Now().Format("2006-01-02") != l.Opendate{
 		var err error
 		var num = 1
