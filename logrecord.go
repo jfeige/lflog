@@ -49,7 +49,7 @@ func (l *LogRecord) writeLog() {
 		case message := <-l.MessageQueue:
 			//写日志文件
 			l.checkLogDate()
-			_,err := fmt.Fprintln(l.f,message)
+			fmt.Fprintln(l.f,message)
 		}
 	}
 }
