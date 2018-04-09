@@ -63,7 +63,6 @@ func readConfigFile(file string) error {
 			}
 		}
 		lr.Logfile = logFile
-		lr.Opendate = time.Now().Format("2006-01-01")
 		createLogFile(logFile.Filename)
 
 		lr.f,_ = os.OpenFile(logFile.Filename,os.O_APPEND|os.O_WRONLY,0666)
