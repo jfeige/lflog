@@ -5,17 +5,14 @@ import (
 	"time"
 	"os"
 	"fmt"
+	"errors"
 )
 
 type LogRecord struct {
 	Enabled 	 bool
 	loglevel     int
-	Level        string //file|console	<!-- level is (:?FINEST|FINE|DEBUG|TRACE|INFO|WARNING|ERROR) -->
-	Type         string
+	Level        string //<!-- level is (:?DEBUG|INFO|WARNING|ERROR) -->
 	OutType		 int	//1:file;2:console;3:file+console
-	Created      time.Time
-	Source       string
-	Message      string
 	Logfile      LogFile
 	Opendate	 string
 	f 			*os.File
@@ -25,10 +22,6 @@ type LogRecord struct {
 type LogFile struct {
 	Filename string
 	Format   string
-	Rotate   bool
-	Maxsize  string
-	Maxlines string
-	Daily    bool
 }
 
 func (l *LogRecord) write(source, message string) {
@@ -62,7 +55,7 @@ func (l *LogRecord) writeLog() {
 			//写日志文件
 			l.checkLogDate()
 			fmt.Fprintln(l.f,message)
-			if l.OutType > 1{
+			if l.OutType > 1{   //同时输出到控制台
 				fmt.Println(message)
 			}
 		}
@@ -77,7 +70,7 @@ func (l *LogRecord) checkLogDate(){
 		//当前日期和程序建立时的日期不符，将日志备份为昨天的日期
 		yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 		//重命名带 1，2，3后缀的日志文件
-		for ;err == nil && num < 999;num++{
+		for ;err == nil && num < MaxLog;num++{
 			new_name := l.Logfile.Filename + fmt.Sprintf(".%s.%03d",yesterday,num)
 			old_name := l.Logfile.Filename + fmt.Sprintf(".%d",num)
 			_,err = os.Lstat(old_name)
@@ -95,25 +88,24 @@ func (l *LogRecord) checkLogDate(){
 			os.Rename(l.Logfile.Filename,new_name)
 
 		}
-		l.f,err = os.OpenFile(l.Logfile.Filename,os.O_APPEND|os.O_WRONLY|os.O_CREATE,0666)
+		os.OpenFile(l.Logfile.Filename,os.O_APPEND|os.O_WRONLY|os.O_CREATE,0666)
 	}
 }
 
 //日志文件创建(应用启动时调用)
-func createLogFile(filename string){
+func createLogFile(filename string)error{
 	_,err := os.Lstat(filename)
 	if err != nil{
 		//文件不存在
 		os.Create(filename)
-		return
+		return nil
 	}
 	num := 1
 	fname := ""
-	for ;err == nil && num <= 999;num++{
+	for ;err == nil && num <= MaxLog;num++{
 		fname = filename + fmt.Sprintf(".%d",num)
 		_,err = os.Lstat(fname)
 		if err != nil{
-			//更改日志文件名称
 			os.Rename(filename,fname)
 			os.Create(filename)
 			break
@@ -121,5 +113,7 @@ func createLogFile(filename string){
 	}
 	if err == nil{
 		//当天已到999个日志，抛出异常
+		return errors.New("too many log file!")
 	}
+	return nil
 }

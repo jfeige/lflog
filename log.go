@@ -8,6 +8,7 @@ import (
 )
 const(
 	MaxQueue = 10000
+	MaxLog = 999
 )
 const (
 	debuglog = iota

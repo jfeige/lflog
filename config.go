@@ -3,7 +3,6 @@ package lflog
 import (
 	"encoding/xml"
 	"io/ioutil"
-	"strconv"
 	"time"
 	"os"
 	"strings"
@@ -35,15 +34,13 @@ func readConfigFile(file string) error {
 	if err != nil {
 		return err
 	}
-	opendate := time.Now().Format("2006-01-02")
 	filters := logging.Filters
 	for _, filter := range filters {
 		lr := new(LogRecord)
-		lr.Type = filter.Type
 
 		lr.Enabled = filter.Enabled
 		var outtype int
-		tps := strings.Split(lr.Type,"|")
+		tps := strings.Split(filter.Type,"|")
 		for _,tp := range tps{
 			switch tp {
 			case "file":
@@ -53,7 +50,7 @@ func readConfigFile(file string) error {
 			}
 		}
 		lr.OutType = outtype
-		lr.Opendate = opendate
+		lr.Opendate = time.Now().Format("2006-01-02")
 		propertys := filter.Propertys
 		logFile := LogFile{}
 		for _, property := range propertys {
@@ -62,31 +59,30 @@ func readConfigFile(file string) error {
 				logFile.Filename = property.Value
 			case "format":
 				logFile.Format = property.Value
-			case "rotate":
-				logFile.Rotate, _ = strconv.ParseBool(property.Value)
-			case "maxsize":
-				logFile.Maxsize = property.Value
-			case "maxlines":
-				logFile.Maxlines = property.Value
-			case "daily":
-				logFile.Daily, _ = strconv.ParseBool(property.Value)
 			}
 		}
 		lr.Logfile = logFile
-		createLogFile(logFile.Filename)
+		err := createLogFile(logFile.Filename)
+		if err != nil{
+			//创建日志文件失败
+			return err
+		}
 
-		lr.f,_ = os.OpenFile(logFile.Filename,os.O_APPEND|os.O_WRONLY,0666)
+		lr.f,err = os.OpenFile(logFile.Filename,os.O_APPEND|os.O_WRONLY,0666)
+		if err != nil{
+			return err
+		}
 		lr.MessageQueue = make(chan string, MaxQueue)
 		var loglevel = -1
 		switch filter.Level {
 		case "DEBUG":
-			loglevel = 0
+			loglevel = debuglog
 		case "INFO":
-			loglevel = 1
+			loglevel = infolog
 		case "WARNING":
-			loglevel = 2
+			loglevel = warninglog
 		case "ERROR":
-			loglevel = 3
+			loglevel = errorlog
 		default:
 			continue
 		}
