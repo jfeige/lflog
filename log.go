@@ -22,6 +22,7 @@ var (
 
 type Log interface {
 	write(source, message string)
+	close()
 }
 
 func LoadConfig(configFile string) {
@@ -33,70 +34,55 @@ func LoadConfig(configFile string) {
 	}
 }
 
-func Info(args0 interface{}, args ...interface{}) {
-	var message, source string
-
-	switch first := args0.(type) {
-	case string:
-		message = first
-		if len(args) > 0 {
-			message = fmt.Sprintf(first, args)
-		}
-	default:
-		message = fmt.Sprintf(fmt.Sprint(args0)+strings.Repeat(" %v", len(args)),args)
+func Close(){
+	for _,f := range logs{
+		f.close()
 	}
-
-	pc, _, lineno, ok := runtime.Caller(1)
-	if ok {
-		source = fmt.Sprintf("%s:%d", runtime.FuncForPC(pc).Name(), lineno)
-	}
-	logs[infolog].write(source, message)
-}
-
-func Error(args0 interface{}, args ...interface{}) {
-	var message, source string
-
-	switch first := args0.(type) {
-	case string:
-		message = first
-		if len(args) > 0 {
-			message = fmt.Sprintf(first, args)
-		}
-	default:
-		message = fmt.Sprintf(fmt.Sprint(args0)+strings.Repeat(" %v", len(args)),args)
-	}
-
-	pc, _, lineno, ok := runtime.Caller(1)
-	if ok {
-		source = fmt.Sprintf("%s:%d", runtime.FuncForPC(pc).Name(), lineno)
-	}
-
-	logs[errorlog].write(source, message)
 }
 
 func Debug(args0 interface{}, args ...interface{}) {
-	var message, source string
 
-	switch first := args0.(type) {
-	case string:
-		message = first
-		if len(args) > 0 {
-			message = fmt.Sprintf(first, args)
-		}
-	default:
-		message = fmt.Sprintf(fmt.Sprint(args0)+strings.Repeat(" %v", len(args)),args)
+	message := handleMessage(args0, args...)
+	source := handleLineNb()
+
+	for level := debuglog;level < len(logs);level++{
+		logs[level].write(source, message)
 	}
+}
 
-	pc, _, lineno, ok := runtime.Caller(1)
-	if ok {
-		source = fmt.Sprintf("%s:%d", runtime.FuncForPC(pc).Name(), lineno)
+func Info(args0 interface{}, args ...interface{}) {
+
+	message := handleMessage(args0, args...)
+	source := handleLineNb()
+
+	for level := infolog;level < len(logs);level++{
+		logs[level].write(source, message)
 	}
-
-	logs[debuglog].write(source, message)
 }
 
 func Warn(args0 interface{}, args ...interface{}) {
-	var message, source string
+
+	message := handleMessage(args0, args...)
+	source := handleLineNb()
+
+	for level := warninglog;level < len(logs);level++{
+		logs[level].write(source, message)
+	}
+}
+
+func Error(args0 interface{}, args ...interface{}) {
+
+	message := handleMessage(args0, args...)
+	source := handleLineNb()
+
+	for level := errorlog;level < len(logs);level++{
+		logs[level].write(source, message)
+	}
+}
+
+
+func handleMessage(args0 interface{},args ...interface{})string{
+	var message string
 
 	switch first := args0.(type) {
 	case string:
@@ -108,10 +94,17 @@ func Warn(args0 interface{}, args ...interface{}) {
 		message = fmt.Sprintf(fmt.Sprint(args0)+strings.Repeat(" %v", len(args)),args)
 	}
 
-	pc, _, lineno, ok := runtime.Caller(1)
+	return message
+}
+
+
+func handleLineNb() string{
+	var source string
+
+	pc, _, lineno, ok := runtime.Caller(2)
 	if ok {
 		source = fmt.Sprintf("%s:%d", runtime.FuncForPC(pc).Name(), lineno)
 	}
 
-	logs[warninglog].write(source, message)
+	return source
 }

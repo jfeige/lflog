@@ -42,6 +42,12 @@ func (l *LogRecord) write(source, message string) {
 	l.MessageQueue <- src
 }
 
+func (l *LogRecord) close(){
+	if l.f != nil{
+		l.f.Close()
+	}
+}
+
 //info
 func (l *LogRecord) writeLog() {
 	for {
