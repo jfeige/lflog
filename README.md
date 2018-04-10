@@ -4,6 +4,7 @@
 安装:
 
 go get github.com/jfeige/lflog
+
 使用:
 
 配置文件格式参考config.xml
