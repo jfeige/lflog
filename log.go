@@ -21,6 +21,7 @@ var (
 )
 
 type Log interface {
+	isenable()bool
 	write(source, message string)
 	close()
 }
@@ -40,44 +41,29 @@ func Close(){
 	}
 }
 
-func Debug(args0 interface{}, args ...interface{}) {
-
-	message := handleMessage(args0, args...)
-	source := handleLineNb()
-
-	for level := debuglog;level < len(logs);level++{
-		logs[level].write(source, message)
+func info(level int,args0 interface{}, args ...interface{}){
+	log := logs[level]
+	if log.isenable(){
+		message := handleMessage(args0, args...)
+		source := handleLineNb()
+		log.write(source, message)
 	}
+}
+
+func Debug(args0 interface{}, args ...interface{}) {
+	info(debuglog,args0,args...)
 }
 
 func Info(args0 interface{}, args ...interface{}) {
-
-	message := handleMessage(args0, args...)
-	source := handleLineNb()
-
-	for level := infolog;level < len(logs);level++{
-		logs[level].write(source, message)
-	}
+	info(infolog,args0,args...)
 }
 
 func Warn(args0 interface{}, args ...interface{}) {
-
-	message := handleMessage(args0, args...)
-	source := handleLineNb()
-
-	for level := warninglog;level < len(logs);level++{
-		logs[level].write(source, message)
-	}
+	info(warninglog,args0,args...)
 }
 
 func Error(args0 interface{}, args ...interface{}) {
-
-	message := handleMessage(args0, args...)
-	source := handleLineNb()
-
-	for level := errorlog;level < len(logs);level++{
-		logs[level].write(source, message)
-	}
+	info(errorlog,args0,args...)
 }
 
 
@@ -88,7 +74,7 @@ func handleMessage(args0 interface{},args ...interface{})string{
 	case string:
 		message = first
 		if len(args) > 0 {
-			message = fmt.Sprintf(first, args)
+			message = fmt.Sprintf(first, args...)
 		}
 	default:
 		message = fmt.Sprintf(fmt.Sprint(args0)+strings.Repeat(" %v", len(args)),args)

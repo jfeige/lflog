@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 	"os"
+	"strings"
 )
 
 type Logging struct {
@@ -37,12 +38,21 @@ func readConfigFile(file string) error {
 	opendate := time.Now().Format("2006-01-02")
 	filters := logging.Filters
 	for _, filter := range filters {
-		if !filter.Enabled {
-			continue
-		}
-		lr := LogRecord{}
-		lr.Tag = filter.Tag
+		lr := new(LogRecord)
 		lr.Type = filter.Type
+
+		lr.Enabled = filter.Enabled
+		var outtype int
+		tps := strings.Split(lr.Type,"|")
+		for _,tp := range tps{
+			switch tp {
+			case "file":
+				outtype += 1
+			case "console":
+				outtype += 2
+			}
+		}
+		lr.OutType = outtype
 		lr.Opendate = opendate
 		propertys := filter.Propertys
 		logFile := LogFile{}
@@ -67,25 +77,23 @@ func readConfigFile(file string) error {
 
 		lr.f,_ = os.OpenFile(logFile.Filename,os.O_APPEND|os.O_WRONLY,0666)
 		lr.MessageQueue = make(chan string, MaxQueue)
+		var loglevel = -1
 		switch filter.Level {
-		case "INFO":
-			lr.Level = "INFO"
-			logs[infolog] = lr
-			go lr.writeLog()
 		case "DEBUG":
-			lr.Level = "DEBUG"
-			logs[debuglog] = lr
-			go lr.writeLog()
-		case "ERROR":
-			lr.Level = "ERROR"
-			logs[errorlog] = lr
-			go lr.writeLog()
+			loglevel = 0
+		case "INFO":
+			loglevel = 1
 		case "WARNING":
-			lr.Level = "WARNING"
-			logs[warninglog] = lr
-			go lr.writeLog()
+			loglevel = 2
+		case "ERROR":
+			loglevel = 3
 		default:
 			continue
+		}
+		if loglevel >= 0{
+			lr.Level = filter.Level
+			logs[loglevel] = lr
+			go lr.writeLog()
 		}
 	}
 	return nil

@@ -2,17 +2,22 @@ package lflog
 
 import (
 	"testing"
-	"fmt"
 	"time"
+	"runtime"
+	"fmt"
 )
 
 func TestLog(t *testing.T) {
 
-
 	LoadConfig("config.xml")
-	defer Close()
-	Info("当前时间:%s",time.Now().Format("2006-01-02 15:04:05"))
-	Debug(fmt.Sprintf("uid:%d",12345))
-	time.Sleep(3*time.Second)
-	Info("finish...")
+	//defer Close()
+	date := time.Now().Format("2006-01-02")
+
+	Debug("这是debug,当前时间:%s",date)
+
+	Info("uid:%d,name:%s",10057,"jfeige")
+
+	runtime.Gosched()
+
+	fmt.Println("finish....")
 }

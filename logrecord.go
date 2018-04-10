@@ -8,9 +8,11 @@ import (
 )
 
 type LogRecord struct {
-	Tag          string
+	Enabled 	 bool
+	loglevel     int
 	Level        string //file|console	<!-- level is (:?FINEST|FINE|DEBUG|TRACE|INFO|WARNING|ERROR) -->
 	Type         string
+	OutType		 int	//1:file;2:console;3:file+console
 	Created      time.Time
 	Source       string
 	Message      string
@@ -48,6 +50,10 @@ func (l *LogRecord) close(){
 	}
 }
 
+func (l *LogRecord) isenable()bool{
+	return l.Enabled
+}
+
 //info
 func (l *LogRecord) writeLog() {
 	for {
@@ -56,6 +62,9 @@ func (l *LogRecord) writeLog() {
 			//写日志文件
 			l.checkLogDate()
 			fmt.Fprintln(l.f,message)
+			if l.OutType > 1{
+				fmt.Println(message)
+			}
 		}
 	}
 }
