@@ -1,7 +1,7 @@
 <logging>
   <filter enabled="true">
     <tag>debug_file</tag>
-    <type>file</type>
+    <type>file|console</type> <!--file 是必选，console可选，中间英文|分割-->
     <level>DEBUG</level>
     <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_debug.log</property>
     <property name="format">[%D] [%L] [%S] %M</property>
@@ -17,7 +17,7 @@
     <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_info.log</property>
     <!--
        %D - Date (2006-01-02 15:04:05)
-       %L - Level (FNST, FINE, DEBG, TRAC, WARN, EROR, CRIT)
+       %L - Level (DEBG, INFO, WARN, EROR)
        %S - Source
        %M - Message
        It ignores unknown format strings (and removes them)
