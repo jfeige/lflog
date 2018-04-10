@@ -10,8 +10,9 @@ func TestLog(t *testing.T) {
 
 
 	LoadConfig("config.xml")
-	Info(fmt.Sprintf("大家好，才是真的好%s.","小明"))
-	Debug(fmt.Sprintf("这是Debug:%s","大家好"))
+	defer Close()
+	Info("当前时间:%s",time.Now().Format("2006-01-02 15:04:05"))
+	Debug(fmt.Sprintf("uid:%d",12345))
 	time.Sleep(3*time.Second)
 	Info("finish...")
 }
