@@ -9,7 +9,6 @@
 
   <filter enabled="true">
     <tag>DEBUG</tag>
-    <level>debug</level>
     <filename>/Users/lifei/Documents/golang/src/lflog/lifei_debug.log</filename>
     <format>[%D] [%L] [%S] %M</format>
   </filter>
@@ -23,21 +22,18 @@
    -->
   <filter enabled="true">
     <tag>INFO</tag>
-    <level>info</level>
     <filename>/Users/lifei/Documents/golang/src/lflog/lifei_info.log</filename>
     <format>[%D] [%L] [%S] %M</format>
   </filter>
 
   <filter enabled="true">
     <tag>WARNING</tag>
-    <level>warning</level>
     <filename>/Users/lifei/Documents/golang/src/lflog/lifei_warn.log</filename>
     <format>[%D] [%L] [%S] %M</format>
   </filter>
 
   <filter enabled="true">
     <tag>ERROR</tag>
-    <level>error</level>
     <filename>/Users/lifei/Documents/golang/src/lflog/lifei_error.log</filename>
     <format>[%D] [%L] [%S] %M</format>
   </filter>
