@@ -11,10 +11,10 @@ const(
 	MaxLog = 999
 )
 const (
-	debuglog = iota
-	infolog
+	errorlog = iota
 	warninglog
-	errorlog
+	infolog
+	debuglog
 )
 
 var (
@@ -43,11 +43,14 @@ func Close(){
 }
 
 func info(level int,args0 interface{}, args ...interface{}){
-	log := logs[level]
-	if log.isenable(){
-		message := handleMessage(args0, args...)
-		source := handleLineNb()
-		log.write(source, message)
+	var log Log
+	for ;level < len(logs);level++{
+		log = logs[level]
+		if log.isenable(){
+			message := handleMessage(args0, args...)
+			source := handleLineNb()
+			log.write(source, message)
+		}
 	}
 }
 
