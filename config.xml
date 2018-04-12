@@ -1,54 +1,44 @@
 <logging>
+
+  <!--控制台开关-->
   <filter enabled="true">
-    <tag>debug_file</tag>
-    <type>file|console</type> <!--file 是必选，console可选，中间英文|分割-->
-    <level>DEBUG</level>
-    <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_debug.log</property>
-    <property name="format">[%D] [%L] [%S] %M</property>
-    <property name="rotate">true</property> <!-- true enables log rotation, otherwise append -->
-    <property name="maxsize">0M</property> <!-- \d+[KMG]? Suffixes are in terms of 2**10 -->
-    <property name="maxlines">0K</property> <!-- \d+[KMG]? Suffixes are in terms of thousands -->
-    <property name="daily">true</property> <!-- Automatically rotates when a log message is written after midnight -->
+    <tag>CONSOLE</tag>
+    <level>debug|info|waring|error</level>
   </filter>
+
+
   <filter enabled="true">
-    <tag>info_file</tag>
-    <type>file</type>
-    <level>INFO</level>
-    <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_info.log</property>
-    <!--
-       %D - Date (2006-01-02 15:04:05)
-       %L - Level (DEBG, INFO, WARN, EROR)
-       %S - Source
-       %M - Message
-       It ignores unknown format strings (and removes them)
-       Recommended: "[%D] [%L] (%S) %M"
-    -->
-    <property name="format">[%D] [%L] [%S] %M</property>
-    <property name="rotate">true</property> <!-- true enables log rotation, otherwise append -->
-    <property name="maxsize">0M</property> <!-- \d+[KMG]? Suffixes are in terms of 2**10 -->
-    <property name="maxlines">0K</property> <!-- \d+[KMG]? Suffixes are in terms of thousands -->
-    <property name="daily">true</property> <!-- Automatically rotates when a log message is written after midnight -->
+    <tag>DEBUG</tag>
+    <level>debug</level>
+    <filename>/Users/lifei/Documents/golang/src/lflog/lifei_debug.log</filename>
+    <format>[%D] [%L] [%S] %M</format>
   </filter>
+  <!--
+      %D - Date (2006-01-02 15:04:05)
+      %L - Level (DEBG, INFO, WARN, EROR)
+      %S - Source
+      %M - Message
+      It ignores unknown format strings (and removes them)
+      Recommended: "[%D] [%L] (%S) %M"
+   -->
   <filter enabled="true">
-    <tag>warn_file</tag>
-    <type>file</type>
-    <level>WARNING</level>
-    <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_warn.log</property>
-    <property name="format">[%D] [%L] [%S] %M</property>
-    <property name="rotate">true</property> <!-- true enables log rotation, otherwise append -->
-    <property name="maxsize">0M</property> <!-- \d+[KMG]? Suffixes are in terms of 2**10 -->
-    <property name="maxlines">0K</property> <!-- \d+[KMG]? Suffixes are in terms of thousands -->
-    <property name="daily">true</property> <!-- Automatically rotates when a log message is written after midnight -->
+    <tag>INFO</tag>
+    <level>info</level>
+    <filename>/Users/lifei/Documents/golang/src/lflog/lifei_info.log</filename>
+    <format>[%D] [%L] [%S] %M</format>
   </filter>
+
   <filter enabled="true">
-    <tag>error_file</tag>
-    <type>file</type>
-    <level>ERROR</level>
-    <property name="filename">/Users/lifei/Documents/golang/src/lflog/lifei_error.log</property>
-    <property name="format">[%D] [%L] [%S] %M</property>
-    <property name="rotate">true</property> <!-- true enables log rotation, otherwise append -->
-    <property name="maxsize">0M</property> <!-- \d+[KMG]? Suffixes are in terms of 2**10 -->
-    <property name="maxlines">0K</property> <!-- \d+[KMG]? Suffixes are in terms of thousands -->
-    <property name="daily">true</property> <!-- Automatically rotates when a log message is written after midnight -->
+    <tag>WARNING</tag>
+    <level>warning</level>
+    <filename>/Users/lifei/Documents/golang/src/lflog/lifei_warn.log</filename>
+    <format>[%D] [%L] [%S] %M</format>
+  </filter>
+
+  <filter enabled="true">
+    <tag>ERROR</tag>
+    <level>error</level>
+    <filename>/Users/lifei/Documents/golang/src/lflog/lifei_error.log</filename>
+    <format>[%D] [%L] [%S] %M</format>
   </filter>
 </logging>

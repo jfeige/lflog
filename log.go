@@ -19,11 +19,12 @@ const (
 
 var (
 	logs = make([]Log, 4)
+	console = Console{}				//控制台输出
 )
 
 type Log interface {
 	isenable()bool
-	write(source, message string)
+	write(source, message string)string
 	close()
 }
 
@@ -42,35 +43,42 @@ func Close(){
 	}
 }
 
-func info(level int,args0 interface{}, args ...interface{}){
+func info(level int,tag string,args0 interface{}, args ...interface{}){
 	var log Log
+	var ret string
+	message := handleMessage(args0, args...)
+	source := handleLineNb()
+
 	for ;level < len(logs);level++{
 		log = logs[level]
 		if log.isenable(){
-			message := handleMessage(args0, args...)
-			source := handleLineNb()
-			log.write(source, message)
+			ret = log.write(source, message)
+		}
+	}
+	if console.Enable{
+		if _,ok := console.Level[tag];ok{
+			fmt.Println(ret)
 		}
 	}
 }
 
 func Debug(args0 interface{}, args ...interface{}) {
-	info(debuglog,args0,args...)
+	info(debuglog,"debug",args0,args...)
 }
 
 func Info(args0 interface{}, args ...interface{}) {
-	info(infolog,args0,args...)
+	info(infolog,"info",args0,args...)
 }
 
 func Warn(args0 interface{}, args ...interface{}) {
-	info(warninglog,args0,args...)
+	info(warninglog,"warning",args0,args...)
 }
 
 func Error(args0 interface{}, args ...interface{}) {
-	info(errorlog,args0,args...)
+	info(errorlog,"error",args0,args...)
 }
 
-
+//处理日志内容
 func handleMessage(args0 interface{},args ...interface{})string{
 	var message string
 
@@ -87,7 +95,7 @@ func handleMessage(args0 interface{},args ...interface{})string{
 	return message
 }
 
-
+//获取行号
 func handleLineNb() string{
 	var source string
 
@@ -98,3 +106,4 @@ func handleLineNb() string{
 
 	return source
 }
+

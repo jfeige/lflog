@@ -9,32 +9,30 @@ import (
 )
 
 type LogRecord struct {
+	Tag 	string
 	Enabled 	 bool
-	loglevel     int
-	Level        string //<!-- level is (:?DEBUG|INFO|WARNING|ERROR) -->
-	OutType		 int	//1:file;2:console;3:file+console
-	Logfile      LogFile
+	Level        string 	//<!-- level is (:?DEBUG|INFO|WARNING|ERROR) -->
+	Filename string
+	Format   string
 	Opendate	 string
 	f 			*os.File
 	MessageQueue chan string
 }
 
-type LogFile struct {
-	Filename string
-	Format   string
-}
 
-func (l *LogRecord) write(source, message string) {
+func (l *LogRecord) write(source, message string)string {
 	//组装字符串，写入队列
 	//[2018/04/03 15:07:44 CST] [INFO] [action.addDynamic:230] addDynamic--------------%!(EXTRA string=110, int=1583649)
 	date := time.Now().Format("2006-01-02 15:04:05")
-	src := l.Logfile.Format
-	src = strings.Replace(src, "%D", date, 1)
-	src = strings.Replace(src, "%L", l.Level, 1)
-	src = strings.Replace(src, "%S", source, 1)
-	src = strings.Replace(src, "%M", message, 1)
+	ret := l.Format
+	ret = strings.Replace(ret, "%D", date, 1)
+	ret = strings.Replace(ret, "%L", l.Level, 1)
+	ret = strings.Replace(ret, "%S", source, 1)
+	ret = strings.Replace(ret, "%M", message, 1)
 
-	l.MessageQueue <- src
+	l.MessageQueue <- ret
+
+	return ret
 }
 
 func (l *LogRecord) close(){
@@ -52,12 +50,9 @@ func (l *LogRecord) writeLog() {
 	for {
 		select {
 		case message := <-l.MessageQueue:
-			//写日志文件
 			l.checkLogDate()
+			//写日志文件
 			fmt.Fprintln(l.f,message)
-			if l.OutType > 1{   //同时输出到控制台
-				fmt.Println(message)
-			}
 		}
 	}
 }
@@ -71,8 +66,8 @@ func (l *LogRecord) checkLogDate(){
 		yesterday := time.Now().AddDate(0, 0, -1).Format("2006-01-02")
 		//重命名带 1，2，3后缀的日志文件
 		for ;err == nil && num < MaxLog;num++{
-			new_name := l.Logfile.Filename + fmt.Sprintf(".%s.%03d",yesterday,num)
-			old_name := l.Logfile.Filename + fmt.Sprintf(".%d",num)
+			new_name := l.Filename + fmt.Sprintf(".%s.%03d",yesterday,num)
+			old_name := l.Filename + fmt.Sprintf(".%d",num)
 			_,err = os.Lstat(old_name)
 			if err == nil{
 				os.Rename(old_name,new_name)
@@ -82,13 +77,13 @@ func (l *LogRecord) checkLogDate(){
 		}
 		//关闭当前
 		l.f.Close()
-		_,err = os.Lstat(l.Logfile.Filename)
+		_,err = os.Lstat(l.Filename)
 		if err == nil{
-			new_name := l.Logfile.Filename + fmt.Sprintf(".%s.%03d",yesterday,num)
-			os.Rename(l.Logfile.Filename,new_name)
+			new_name := l.Filename + fmt.Sprintf(".%s.%03d",yesterday,num)
+			os.Rename(l.Filename,new_name)
 
 		}
-		os.OpenFile(l.Logfile.Filename,os.O_APPEND|os.O_WRONLY|os.O_CREATE,0666)
+		os.OpenFile(l.Filename,os.O_APPEND|os.O_WRONLY|os.O_CREATE,0666)
 	}
 }
 

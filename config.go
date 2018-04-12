@@ -12,16 +12,16 @@ type Logging struct {
 	Filters []Filter `xml:"filter"`
 }
 type Filter struct {
-	Enabled    bool      `xml:"enabled,attr"`
-	Tag       string     `xml:"tag"`
-	Type      string     `xml:"type"`
-	Level     string     `xml:"level"`
-	Propertys []Property `xml:"property"`
+	Enabled    bool      	`xml:"enabled,attr"`
+	Tag       string     	`xml:"tag"`
+	Level 	string 	`xml:"level"`
+	Filename	string 		`xml:"filename"`
+	Format		string 		`xml:"format"`
 }
 
-type Property struct {
-	Name  string `xml:"name,attr"`
-	Value string `xml:",chardata"`
+type Console struct {
+	Enable bool
+	Level map[string]string
 }
 
 func readConfigFile(file string) error {
@@ -36,45 +36,37 @@ func readConfigFile(file string) error {
 	}
 	filters := logging.Filters
 	for _, filter := range filters {
+		if filter.Tag == "CONSOLE"{
+			console.Enable = filter.Enabled
+			levels := strings.Split(filter.Level,"|")
+			mlevel := make(map[string]string)
+			for _,level := range levels{
+				mlevel[level] = level
+			}
+			console.Level = mlevel
+			continue
+		}
 		lr := new(LogRecord)
-
 		lr.Enabled = filter.Enabled
-		var outtype int
-		tps := strings.Split(filter.Type,"|")
-		for _,tp := range tps{
-			switch tp {
-			case "file":
-				outtype += 1
-			case "console":
-				outtype += 2
-			}
-		}
-		lr.OutType = outtype
+		lr.Tag = filter.Tag
+		lr.Level = filter.Level
 		lr.Opendate = time.Now().Format("2006-01-02")
-		propertys := filter.Propertys
-		logFile := LogFile{}
-		for _, property := range propertys {
-			switch property.Name {
-			case "filename":
-				logFile.Filename = property.Value
-			case "format":
-				logFile.Format = property.Value
-			}
+		switch filter.Tag {
+		case "DEBUG","INFO","WARNING","ERROR":
+			lr.Filename = filter.Filename
+			lr.Format = filter.Format
+		default:
+			continue
 		}
-		lr.Logfile = logFile
-		err := createLogFile(logFile.Filename)
-		if err != nil{
-			//创建日志文件失败
-			return err
-		}
+		createLogFile(lr.Filename)
 
-		lr.f,err = os.OpenFile(logFile.Filename,os.O_APPEND|os.O_WRONLY,0666)
+		lr.f,err = os.OpenFile(lr.Filename,os.O_APPEND|os.O_WRONLY,0666)
 		if err != nil{
 			return err
 		}
 		lr.MessageQueue = make(chan string, MaxQueue)
 		var loglevel = -1
-		switch filter.Level {
+		switch strings.ToUpper(filter.Level) {
 		case "DEBUG":
 			loglevel = debuglog
 		case "INFO":
@@ -87,7 +79,6 @@ func readConfigFile(file string) error {
 			continue
 		}
 		if loglevel >= 0{
-			lr.Level = filter.Level
 			logs[loglevel] = lr
 			go lr.writeLog()
 		}
