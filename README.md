@@ -1,11 +1,11 @@
 # lflog
 模仿log4go实现的一款很简单的日志库，还在继续完善中
 
-安装:
+## 安装:
 ```
 go get github.com/jfeige/lflog
 ```
-使用:
+## 使用:
 
 配置文件格式参考config.xml
 
@@ -13,7 +13,7 @@ go get github.com/jfeige/lflog
 ```
         LoadConfig("config.xml")
 ```
-使用:
+## 使用:
 ```
         Info("当前时间:%s",time.Now().Format("2006-01-02 15:04:05"))
         Info("开始读取数据......")
@@ -22,7 +22,7 @@ go get github.com/jfeige/lflog
         Debug("uid:%d,cnt:%d,memo",args...)
         Debug("receive a post request")
 ```
-API列表:
+## API列表:
 ```
         Debug(args0 interface{}, args ...interface{})
 
