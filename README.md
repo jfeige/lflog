@@ -1,17 +1,17 @@
 # lflog
 ```
-模仿log4go实现的一款很简单的日志库，还在继续完善中
+	模仿log4go实现的一款很简单的日志库，还在继续完善中
 ```
 
 ## 安装:
 ```
-go get github.com/jfeige/lflog
+	go get github.com/jfeige/lflog
 
 ```
 ## 使用:
 ```
 
-配置文件格式参考config.xml
+	配置文件格式参考config.xml
 
 ```
 应用程序入口加载配置文件:
